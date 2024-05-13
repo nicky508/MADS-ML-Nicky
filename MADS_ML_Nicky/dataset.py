@@ -10,7 +10,7 @@ class BaseDataset:
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        return self.data[idx], self.targets[idx]
+        return self.dataset[idx], self.targets[idx]
 
     def process_data(self) -> None:
         # note we raise an error here. This is a template, and we want to force
@@ -20,13 +20,15 @@ class BaseDataset:
 class Random3dDataset(BaseDataset):
     def __init__(self):
         super().__init__()
-        observations = (50, )
-        datasize = (3, 28, 28)
+        observations = (1000, )
+        datasize = (16, 32, 64)
+        targetsize = (1,)
 
         dim = observations + datasize
+        dim_target = observations + targetsize
 
-        self.data = torch.rand(dim)
-        self.targets = torch.randint(0, 2, size=(1,1)) #torch.bernoulli(torch.rand(1))
+        self.dataset = torch.rand(dim)
+        self.targets = torch.randint(0, 2, size=dim_target) 
     
     def process_data(self) -> None:
         pass
