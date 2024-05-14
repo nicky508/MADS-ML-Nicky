@@ -1,30 +1,89 @@
+[build-system]
+build-backend = "pdm.backend"
+requires = ["pdm-backend"]
 
 [project]
-name = "MADS-ML-Nicky"
+name = "mads-deeplearning"
 version = "0.1.0"
 description = ""
+
 authors = [
-	{name = "", email = ""},
+    {name = "N van Oorschot", email = "nicky.vanoorschot@student.hu.nl"},
 ]
-dependencies = [
-    "torch>=2.3.0",
-    "numpy>=1.26.4",
-    "mads-datasets>=0.3.10",
-    "jupyter>=1.0.0",
-    "pyzmq>=26.0.3",
-]
-requires-python = ">=3.9"
-readme = "README.md"
+
+requires-python = ">=3.10,<3.12"
 license = {text = "MIT"}
 
-[tool.pdm.dev-dependencies]
-lint = [
-	"ruff>=0.0.278",
-	"black>=23.7.0",
-	"isort>=5.12.0",
-	"mypy>=1.4.1",
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Typing :: Typed",
 ]
 
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+dependencies = [
+    "torch>=2.0.1",
+    "numpy>=1.25.0",
+    "loguru>=0.7.0",
+    "pydantic>=1.10.9",
+    "pandas>=2.0.3",
+    "mads-datasets[torch]>=0.3.10",
+    "matplotlib>=3.7.1",
+    "seaborn>=0.12.2",
+    "torchsummary>=1.5.1",
+    "plotly>=5.17.0",
+    "mltrainer>=0.1.124",
+    "hyperopt>=0.2.7",
+    "shap>=0.43.0",
+    "hpbandster>=0.7.4",
+    "configspace>=0.7.1",
+    "bayesian-optimization>=1.4.3",
+    "tensorboard>=2.15.1",
+    "torch-tb-profiler>=0.4.3",
+]
+
+[project.optional-dependencies]
+graphs = [
+    "torch-geometric>=2.4.0",
+]
+
+[tool]
+rye = { dev-dependencies = [
+    "jupyter>=1.0.0",
+    "ruff>=0.4.3",
+    "mypy>=1.10.0",
+    "black>=24.4.2",
+    "toml-sort>=0.23.1",
+    "isort>=5.13.2",
+] }
+[tool.mypy]
+ignore_missing_imports = true
+strict_optional = true
+warn_unreachable = true
+pretty = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "jupyter>=1.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.6.1",
+    "black>=23.10.0",
+    "toml-sort>=0.23.1",
+    "isort>=5.12.0",
+]
+
+[tool.pdm.resolution.overrides]
+grpcio = ">=1.53.0"
+
+[tool.ruff]
+ignore = [
+  "ANN101",
+  "ANN102",
+  "D",
+  "FIX002",
+  "INP001",
+]
+line-length = 88
+
+
