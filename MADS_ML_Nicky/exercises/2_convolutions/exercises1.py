@@ -36,7 +36,7 @@ accuracy = metrics.Accuracy()
 
 # Define the hyperparameter search space
 settings = TrainerSettings(
-    epochs=5,
+    epochs=10,
     metrics=[accuracy],
     logdir="modellogs",
     train_steps=len(train),
@@ -52,11 +52,9 @@ class CNN(nn.Module):
         #Convolution layers
         self.convolutions = nn.Sequential(
             nn.Conv2d(1, filters, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(filters),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2),
             nn.Conv2d(filters, filters, kernel_size=3, stride=1, padding=0),
-            nn.BatchNorm2d(filters),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2),
             nn.Conv2d(filters, filters, kernel_size=3, stride=1, padding=0),
@@ -66,13 +64,14 @@ class CNN(nn.Module):
             nn.Conv2d(filters, filters, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(filters),
             nn.ReLU(),
+            nn.Dropout(p=0.25),
             nn.MaxPool2d(kernel_size=2),
         )
 
         #AVG pooling for fully connected layers
         activation_map_size = self._conv_test(input_size)
         logger.info(f"Aggregating activationmap with size {activation_map_size}")
-        self.agg = nn.AvgPool2d(activation_map_size)
+        self.agg = nn.MaxPool2d(activation_map_size)
 
         #Full connected layers
         self.dense = nn.Sequential(
