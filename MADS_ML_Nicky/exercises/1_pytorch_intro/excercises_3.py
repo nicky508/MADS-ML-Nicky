@@ -32,7 +32,7 @@ gin.parse_config_file(ginModelPath)
 
 # units = [64, 32, 16] makes it less accurate (app. 0.54 instead of app. 0.34) but spread more widely over the Y axis. 
 # units = [1024, 512, 256] Makes it not more accurate, about same as [256, 128, 64] but takes much longer without increasing accuracy
-units = [256, 128, 64]
+units = [512, 256, 128, 64]
 loss_fn = torch.nn.CrossEntropyLoss()
 
 settings = TrainerSettings(
@@ -41,6 +41,7 @@ settings = TrainerSettings(
     logdir="modellogs",
     train_steps=len(train),
     valid_steps=len(valid),
+    optimizer_kwargs = {"lr": 1e-3},
     reporttypes=[ReportTypes.TENSORBOARD, ReportTypes.GIN],
 )
 
@@ -56,7 +57,7 @@ for unit1 in units:
             model=model,
             settings=settings,
             loss_fn=loss_fn,
-            optimizer = optim.Adam,
+            optimizer=optim.Adam,
             traindataloader=trainstreamer,
             validdataloader=validstreamer,
             scheduler=optim.lr_scheduler.ReduceLROnPlateau
