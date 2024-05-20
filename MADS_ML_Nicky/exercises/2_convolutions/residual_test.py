@@ -36,7 +36,7 @@ accuracy = metrics.Accuracy()
 
 # Define the hyperparameter search space
 settings = TrainerSettings(
-    epochs=10,
+    epochs=5,
     metrics=[accuracy],
     logdir="modellogs",
     train_steps=len(train),
@@ -49,29 +49,42 @@ class CNN(nn.Module):
     def __init__(self, filters, units1, units2, input_size=(64, 1, 28, 28)):
         super().__init__()
         
-        #Convolution layers
-        self.convolutions = nn.Sequential(
+        self.baseConvolution = nn.Sequential(
             nn.Conv2d(1, filters, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2),
+        )
+        
+        #Convolution layers
+        self.convolutionBlock1 = nn.Sequential(
             nn.Conv2d(filters, filters, kernel_size=3, stride=1, padding=0),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2),
+            nn.MaxPool2d(kernel_size=2)
+        )
+        
+        self.convolutionBlock2 = nn.Sequential(
             nn.Conv2d(filters, filters, kernel_size=3, stride=1, padding=0),
-            nn.ReLU(),
-            nn.Conv2d(filters, filters, kernel_size=3, stride=1, padding=0),
-            nn.ReLU(),
-            nn.Conv2d(filters, filters, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(filters),
             nn.ReLU(),
             nn.Dropout(p=0.25),
             nn.MaxPool2d(kernel_size=2),
         )
+        
+        #downsample layer for residual
+        self.downsample = nn.Sequential(
+            nn.Conv2d(filters, filters, kernel_size=1,padding=1, stride=3),
+            nn.BatchNorm2d(filters)
+        )
+        
+        self.downsample2 = nn.Sequential(
+            nn.Conv2d(filters, filters, kernel_size=1,padding=0, stride=3),
+            nn.BatchNorm2d(filters)
+        )
 
         #AVG pooling for fully connected layers
-        activation_map_size = self._conv_test(input_size)
-        logger.info(f"Aggregating activationmap with size {activation_map_size}")
-        self.agg = nn.MaxPool2d(activation_map_size)
+        # activation_map_size = self._conv_test(input_size)
+        # logger.info(f"Aggregating activationmap with size {activation_map_size}")
+        self.agg = nn.AvgPool2d(2,1)
 
         #Full connected layers
         self.dense = nn.Sequential(
@@ -84,19 +97,33 @@ class CNN(nn.Module):
             nn.Linear(units2, 10)
         )
 
-    def _conv_test(self, input_size = (64, 1, 28, 28)):
-        x = torch.ones(input_size)
-        x = self.convolutions(x)
-        return x.shape[-2:]
+    # def _conv_test(self, input_size = (64, 1, 28, 28)):
+    #     x = torch.ones(input_size)
+    #     x = self.baseConvolution(x)
+    #     x = self.convolutionBlock1(x)
+    #     x = self.convolutionBlock2(x)
+    #     return x.shape[-2:]
 
     def forward(self, x):
-        x = self.convolutions(x)
+        x = self.baseConvolution(x)
+        
+        residual1 = x        
+        x = self.convolutionBlock1(x)
+        residual1 = self.downsample(residual1)
+        x += residual1
+        
+
+        residual2 = x
+        x = self.convolutionBlock2(x)
+        residual2 = self.downsample2(residual2)
+        x += residual2
+        
         x = self.agg(x)
         logits = self.dense(x)
         return logits
 
 model = CNN(filters=64, units1=128, units2=64).to(device)
-# summary(model, input_size=(1, 28, 28))
+summary(model, input_size=(1, 28, 28))
 
 trainer = Trainer(
             model=model,
@@ -109,3 +136,4 @@ trainer = Trainer(
             device=device,
         )
 trainer.loop()
+
