@@ -36,7 +36,7 @@ accuracy = metrics.Accuracy()
 
 # Define the hyperparameter search space
 settings = TrainerSettings(
-    epochs=10,
+    epochs=15,
     metrics=[accuracy],
     logdir="modellogs",
     train_steps=len(train),
@@ -48,6 +48,16 @@ settings = TrainerSettings(
 class CNN(nn.Module):
     def __init__(self, filters, units1, units2, input_size=(64, 1, 28, 28)):
         super().__init__()
+        
+        #not working yet...
+        # self.squeeze = nn.AvgPool2d(kernel_size=2)
+        
+        # self.excitation = nn.Sequential(
+        #     nn.Linear(filters, filters // r, bias=False),
+        #     nn.ReLU(inplace=True),
+        #     nn.Linear(filters // r, c, bias=False),
+        #     nn.Sigmoid()
+        # )
         
         #Convolution layers
         self.convolutions = nn.Sequential(
@@ -96,7 +106,7 @@ class CNN(nn.Module):
         return logits
 
 model = CNN(filters=64, units1=128, units2=64).to(device)
-# summary(model, input_size=(1, 28, 28))
+summary(model, input_size=(1, 28, 28))
 
 trainer = Trainer(
             model=model,
