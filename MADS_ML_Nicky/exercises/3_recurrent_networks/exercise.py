@@ -32,7 +32,14 @@ class GruModel(nn.Module):
         
         self.convolutions = nn.Sequential(
             nn.Conv1d(in_channels=3, out_channels=config["input_size"], kernel_size=3),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Conv1d(in_channels=config["input_size"], out_channels=config["input_size"], kernel_size=3),
+            nn.ReLU(),
+            nn.Conv1d(in_channels=config["input_size"], out_channels=config["input_size"], kernel_size=3),
+            nn.BatchNorm1d(config["input_size"]),
+            nn.ReLU(),
+            # nn.Dropout(p=0.25),
+            # nn.MaxPool2d(kernel_size=2),
         )
         
         self.gru = nn.GRU(    
@@ -77,7 +84,7 @@ def getSettings(train, valid):
         valid_steps=len(valid),
         reporttypes=[ReportTypes.GIN, ReportTypes.TENSORBOARD, ReportTypes.MLFLOW],
         scheduler_kwargs={"factor": 0.5, "patience": 5},
-        earlystop_kwargs=None
+        earlystop_kwargs={"patience": 5},
     )    
     return settings
 
