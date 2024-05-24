@@ -1,0 +1,10 @@
+import gin.torch.external_configurables
+
+# Parameters for LstmModel:
+# ==============================================================================
+LstmModel.config = \
+    {'dropout': 0.1,
+     'hidden_size': 64,
+     'input_size': 64,
+     'num_layers': 2,
+     'output_size': 20}
