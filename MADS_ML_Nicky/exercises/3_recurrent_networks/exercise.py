@@ -26,9 +26,15 @@ ginModelPath = Path(__file__).parent.resolve() / "gestures_gru.gin"
 class GruModel(nn.Module):
     def __init__(
         self,
-        config: Dict,
+        config: Dict
     ) -> None:
         super().__init__()
+        
+        self.convolutions = nn.Sequential(
+            nn.Conv1d(in_channels=3, out_channels=config["input_size"], kernel_size=3),
+            nn.ReLU()
+        )
+        
         self.gru = nn.GRU(    
                 input_size=config["input_size"],
                 hidden_size=config["hidden_size"],
@@ -36,9 +42,14 @@ class GruModel(nn.Module):
                 batch_first=True,
                 num_layers=config["num_layers"]
         )
+        
         self.linear = nn.Linear(config["hidden_size"], config["output_size"])
-
+    
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x.permute(0, 2, 1)
+        x = self.convolutions(x) 
+        
+        x = x.permute(0, 2, 1)
         x, _ = self.gru(x)
         last_step = x[:, -1, :]
         yhat = self.linear(last_step)
@@ -59,7 +70,7 @@ def getData():
 def getSettings(train, valid):
     accuracy = Accuracy()
     settings = TrainerSettings(
-        epochs=5,
+        epochs=25,
         metrics=[accuracy],
         logdir=Path("gestures"),
         train_steps=len(train),

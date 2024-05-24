@@ -1,9 +1,9 @@
 import gin.torch.external_configurables
 
 GruModel.config = {
-    "input_size" : 3,
-    "hidden_size" : 512,
+    "input_size" : 64,
+    "hidden_size" : 128,
     "dropout" : 0.1,
-    "num_layers" : 16,
+    "num_layers" : 8,
     "output_size" : 20
     }
