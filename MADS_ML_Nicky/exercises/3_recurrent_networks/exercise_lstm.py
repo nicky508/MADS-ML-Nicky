@@ -30,20 +30,22 @@ class LstmModel(nn.Module):
     ) -> None:
         super().__init__()
         
-        # self.convolutions = nn.Sequential(
-        #     nn.Conv1d(in_channels=3, out_channels=config["input_size"], kernel_size=3),
-        #     nn.ReLU(),
-        #     nn.Conv1d(in_channels=config["input_size"], out_channels=config["input_size"], kernel_size=3),
-        #     nn.ReLU(),
-        #     nn.Conv1d(in_channels=config["input_size"], out_channels=config["input_size"], kernel_size=3),
-        #     nn.BatchNorm1d(config["input_size"]),
-        #     nn.ReLU(),
-        #     nn.Dropout(p=0.25),
-        #     nn.MaxPool2d(kernel_size=2),
-        # )
+        self.convolutions = nn.Sequential(
+            nn.Conv1d(in_channels=3, out_channels=config["input_size"], kernel_size=3),
+            nn.BatchNorm1d(config["input_size"]),
+            nn.ReLU(),
+            nn.Conv1d(in_channels=config["input_size"], out_channels=config["input_size"], kernel_size=3),
+            nn.BatchNorm1d(config["input_size"]),
+            nn.ReLU(),
+            nn.Conv1d(in_channels=config["input_size"], out_channels=config["input_size"], kernel_size=3),
+            nn.BatchNorm1d(config["input_size"]),
+            nn.ReLU(),
+            nn.Dropout(p=config["dropout"]),
+            nn.MaxPool2d(kernel_size=2),
+        )
         
         self.lstm = nn.LSTM(    
-                input_size=3,
+                input_size=int(config["input_size"]/2),
                 hidden_size=config["hidden_size"],
                 dropout=config["dropout"],
                 batch_first=True,
@@ -53,9 +55,9 @@ class LstmModel(nn.Module):
         self.linear = nn.Linear(config["hidden_size"], config["output_size"])
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # x = x.permute(0, 2, 1)
-        # x = self.convolutions(x) 
-        # x = x.permute(0, 2, 1)
+        x = x.permute(0, 2, 1)
+        x = self.convolutions(x) 
+        x = x.permute(0, 2, 1)
         
         x, _ = self.lstm(x)
         last_step = x[:, -1, :]
@@ -77,13 +79,13 @@ def getData():
 def getSettings(train, valid):
     accuracy = Accuracy()
     settings = TrainerSettings(
-        epochs=25,
+        epochs=15,
         metrics=[accuracy],
         logdir=Path("gestures"),
         train_steps=len(train),
         valid_steps=len(valid),
         reporttypes=[ReportTypes.GIN, ReportTypes.TENSORBOARD, ReportTypes.MLFLOW],
-        scheduler_kwargs={"factor": 0.5, "patience": 5},
+        scheduler_kwargs={"factor": 0.5, "patience": 2},
         earlystop_kwargs={"patience": 5},
     )    
     return settings

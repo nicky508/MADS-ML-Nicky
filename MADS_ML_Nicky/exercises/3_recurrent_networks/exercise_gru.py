@@ -43,7 +43,7 @@ class GruModel(nn.Module):
         )
         
         self.gru = nn.GRU(    
-                input_size=32,
+                input_size=int(config["input_size"]/2),
                 hidden_size=config["hidden_size"],
                 dropout=config["dropout"],
                 batch_first=True,
