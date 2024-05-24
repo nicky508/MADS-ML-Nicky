@@ -38,12 +38,12 @@ class GruModel(nn.Module):
             nn.Conv1d(in_channels=config["input_size"], out_channels=config["input_size"], kernel_size=3),
             nn.BatchNorm1d(config["input_size"]),
             nn.ReLU(),
-            # nn.Dropout(p=0.25),
-            # nn.MaxPool2d(kernel_size=2),
+            nn.Dropout(p=0.25),
+            nn.MaxPool2d(kernel_size=2),
         )
         
         self.gru = nn.GRU(    
-                input_size=config["input_size"],
+                input_size=32,
                 hidden_size=config["hidden_size"],
                 dropout=config["dropout"],
                 batch_first=True,
