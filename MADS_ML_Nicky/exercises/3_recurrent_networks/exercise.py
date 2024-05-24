@@ -59,7 +59,7 @@ def getData():
 def getSettings(train, valid):
     accuracy = Accuracy()
     settings = TrainerSettings(
-        epochs=10,
+        epochs=5,
         metrics=[accuracy],
         logdir=Path("gestures"),
         train_steps=len(train),
