@@ -1,0 +1,10 @@
+import gin.torch.external_configurables
+
+# Parameters for GruModel:
+# ==============================================================================
+GruModel.config = \
+    {'dropout': 0.2,
+     'hidden_size': 32,
+     'input_size': 14,
+     'num_layers': 2,
+     'output_size': 1}

@@ -1,0 +1,9 @@
+import gin.torch.external_configurables
+
+EegModel.config = {
+    "input_size" : 14,
+    "hidden_size" : 64,
+    "dropout" : 0.2,
+    "num_layers" : 2,
+    "output_size" : 1
+    }
